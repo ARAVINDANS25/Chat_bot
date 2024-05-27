@@ -1,8 +1,7 @@
-# Code refactored from https://docs.streamlit.io/knowledge-base/tutorials/build-conversational-apps
-
 import openai
 import streamlit as st
 
+# Set OpenAI API key
 with st.sidebar:
     st.title('🤖💬 OpenAI Chatbot')
     if 'OPENAI_API_KEY' in st.secrets:
@@ -15,25 +14,41 @@ with st.sidebar:
         else:
             st.success('Proceed to entering your prompt message!', icon='👉')
 
+# Define function to interact with OpenAI API
+def get_chat_response(messages):
+    response = openai.Completion.create(
+        engine="davinci",
+        prompt=messages,
+        temperature=0.7,
+        max_tokens=150,
+        top_p=1.0,
+        frequency_penalty=0.0,
+        presence_penalty=0.0,
+        stop=["\n"]
+    )
+    return response.choices[0].text.strip()
+
+# Streamlit app
+st.title('🤖💬 OpenAI Chatbot')
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+    with st.empty():
         st.markdown(message["content"])
 
-if prompt := st.chat_input("What is up?"):
+# User input
+prompt = st.text_input("You:", "")
+
+if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
+    with st.empty():
         st.markdown(prompt)
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        full_response = ""
-        for response in openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": m["role"], "content": m["content"]}
-                      for m in st.session_state.messages], stream=True):
-            full_response += response.choices[0].delta.get("content", "")
-            message_placeholder.markdown(full_response + "▌")
-        message_placeholder.markdown(full_response)
-    st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+    # Get response from OpenAI
+    response = get_chat_response("\n".join([msg["content"] for msg in st.session_state.messages]))
+
+    st.session_state.messages.append({"role": "assistant", "content": response})
+    with st.empty():
+        st.markdown(response)
