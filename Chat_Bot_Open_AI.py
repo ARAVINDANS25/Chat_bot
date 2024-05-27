@@ -7,6 +7,14 @@ userrole = "user"
 
 st.title('🤖💬 OpenAI Chatbot')
 
+def get_chat_response(prompt):
+    response = openai.Completion.create(
+        engine=gptmodel,
+        prompt=prompt,
+        max_tokens=150
+    )
+    return response.choices[0].text.strip()
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
