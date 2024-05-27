@@ -2,23 +2,13 @@ import openai
 import streamlit as st
 
 # Set OpenAI API key
-with st.sidebar:
-    st.title('🤖💬 OpenAI Chatbot')
-    if 'OPENAI_API_KEY' in st.secrets:
-        st.success('API key already provided!', icon='✅')
-        openai.api_key = st.secrets['OPENAI_API_KEY']
-    else:
-        openai.api_key = st.text_input('Enter OpenAI API token:', type='password')
-        if not (openai.api_key.startswith('sk-') and len(openai.api_key) == 51):
-            st.warning('Please enter your credentials!', icon='⚠️')
-        else:
-            st.success('Proceed to entering your prompt message!', icon='👉')
+openai.api_key = "sk-proj-9bfEsVVd8MN78dHejY3iT3BlbkFJxCc1xNDTli9inuDz39WR"
 
 # Define function to interact with OpenAI API
-def get_chat_response(prompt):
+def get_chat_response(messages):
     response = openai.Completion.create(
         engine="davinci",
-        prompt=prompt,
+        prompt=messages,
         temperature=0.7,
         max_tokens=150,
         top_p=1.0,
@@ -26,7 +16,7 @@ def get_chat_response(prompt):
         presence_penalty=0.0,
         stop=["\n"]
     )
-    return response['choices'][0]['text'].strip()
+    return response.choices[0].text.strip()
 
 # Streamlit app
 st.title('🤖💬 OpenAI Chatbot')
